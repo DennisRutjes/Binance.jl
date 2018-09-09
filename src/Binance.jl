@@ -8,7 +8,7 @@ apiSecret = ENV["BINANCE_SECRET"]
 # base URL of the Binance API
 BINANCE_API_REST = "https://api.binance.com/"
 BINANCE_API_TICKER = string(BINANCE_API_REST,"api/v1/ticker/")
-INANCE_API_KLINES = string(BINANCE_API_REST,"api/v1/klines/")
+BINANCE_API_KLINES = string(BINANCE_API_REST,"api/v1/klines/")
 
 BINANCE_API_WS = "wss://stream.binance.com:9443/ws/"
 BINANCE_API_STREAM = "wss://stream.binance.com:9443/stream/"
@@ -50,14 +50,14 @@ end
 
 # binance get candlesticks/klines data
 function getKlines(symbol; startDateTime=nothing, endDateTime=nothing, interval="1m")
-    query = "symbol=$symbol&interval=$interval"
+    query = string("symbol=", symbol, "&interval=", interval)
     
     if startDateTime != nothing && endDateTime != nothing
         startTime = @sprintf("%.0d",Dates.datetime2unix(startDateTime) * 1000)
         endTime = @sprintf("%.0d",Dates.datetime2unix(endDateTime) * 1000)
         query = string(query, "&startTime=", startTime, "&endTime=", endTime)
     end
-   r = HTTP.request("GET", string(INANCE_API_KLINES,"?",  query))
+   r = HTTP.request("GET", string(BINANCE_API_KLINES,"?",  query))
     r2j(r.body)
 end
 
