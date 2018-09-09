@@ -18,12 +18,6 @@ function r2j(response)
     JSON.parse(String(response))
 end
 
-# retrieve data from binance for "allPrices", "24hr", "allBookTickers"
-function getAllPrices()
-    r = HTTP.request("GET", string(BINANCE_API_TICKER, "allPrices"))
-    r2j(r.body)    
-end
-
 function get24HR()
     r = HTTP.request("GET", string(BINANCE_API_TICKER, "24hr"))
     r2j(r.body)    
@@ -34,12 +28,22 @@ function get24HR(symbol::String)
     r2j(r.body)    
 end
 
+function getAllPrices()
+    r = HTTP.request("GET", string(BINANCE_API_TICKER, "allPrices"))
+    r2j(r.body)    
+end
+
 function getAllBookTickers()
+    r = HTTP.request("GET", string(BINANCE_API_TICKER, "allBookTickers"))
+    r2j(r.body)    
+end
+
+function getMarket()
     r = HTTP.request("GET", "https://www.binance.com/exchange/public/product")
     r2j(r.body)["data"]
 end
 
-function getAllBookTickers(symbol::String)
+function getMarket(symbol::String)
     r = HTTP.request("GET", "https://www.binance.com/exchange/public/product?symbol=",symbol)
     r2j(r.body)["data"]
 end
