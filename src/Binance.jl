@@ -49,7 +49,7 @@ function getMarket(symbol::String)
 end
 
 # binance get candlesticks/klines data
-function getKlines(symbol; startDateTime, endDateTime, interval="1m")
+function getKlines(symbol; startDateTime=nothing, endDateTime=nothing, interval="1m")
     query = "symbol=$symbol&interval=$interval"
     
     if startDateTime && endDateTime
