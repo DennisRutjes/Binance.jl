@@ -1,6 +1,6 @@
 module Binance
 
-using HTTP,SHA, JSON, Dates, Printf
+import HTTP,SHA, JSON, Dates, Printf
 
 apiKey = ENV["BINANCE_APIKEY"] 
 apiSecret = ENV["BINANCE_SECRET"] 
