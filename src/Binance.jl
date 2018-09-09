@@ -44,7 +44,7 @@ function getMarket()
 end
 
 function getMarket(symbol::String)
-    r = HTTP.request("GET", "https://www.binance.com/exchange/public/product?symbol=",symbol)
+    r = HTTP.request("GET", string("https://www.binance.com/exchange/public/product?symbol=",symbol))
     r2j(r.body)["data"]
 end
 
