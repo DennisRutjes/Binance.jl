@@ -1,5 +1,7 @@
 # Binance.jl
-Binance API with julia
+[Binance](https://www.binance.com/en?ref=35360148) API with [Julialang](https://julialang.org/)
+
+![julia](https://julialang.org/v2/img/logo.svg)
 
 usage :
 
