@@ -18,6 +18,7 @@ end
 function getBinanceDataFor(withSubject)
     r = HTTP.request("GET", string(BINANCE_API_REST, withSubject))
     r2j(r.body)
+    
 end
 
 # current Binance market

@@ -1,0 +1,6 @@
+authors = ["Dennis Rutjes <dennis@jpoint.nl>"]
+name = "Binance"
+uuid = "840d5de0-b432-11e8-2099-35be2bba8ecc"
+version = "0.1.0"
+
+[deps]
