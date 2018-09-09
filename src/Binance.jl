@@ -52,7 +52,7 @@ end
 function getKlines(symbol; startDateTime=nothing, endDateTime=nothing, interval="1m")
     query = "symbol=$symbol&interval=$interval"
     
-    if startDateTime != noting && endDateTime !=noting
+    if startDateTime != nothing && endDateTime != nothing
         startTime = @sprintf("%.0d",Dates.datetime2unix(startDateTime) * 1000)
         endTime = @sprintf("%.0d",Dates.datetime2unix(endDateTime) * 1000)
         query = string(query, "&startTime=", startTime, "&endTime=", endTime)
