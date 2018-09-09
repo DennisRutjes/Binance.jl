@@ -57,4 +57,8 @@ function getKlines(symbol; startDateTime, endDateTime, interval="1m")
     r2j(r.body)
 end
 
+
+# helper
+filterOnRegex(matcher, withDictArr; withKey="symbol") = filter(x-> match(Regex(matcher), x[withKey]) != nothing, withDictArr);
+
 end
