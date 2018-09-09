@@ -44,7 +44,7 @@ dfKlines = getBinanceKlineDataframe("ETHBTC");
 
 plot(dfKlines[:close];label="ETHBTC interval = '1m'")
 
-![plot](./image/plot.png)
+![plot](https://github.com/DennisRutjes/Binance.jl/blob/master/images/plot.png)
 
 
 
