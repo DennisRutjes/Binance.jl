@@ -16,7 +16,7 @@ for package in packages
     end
 end
 
-# fill in correct values when using private binancecalls e.g. getBalances()
+# fill in correct values when using private binance calls e.g. Binance.getBalances()
 ENV["BINANCE_APIKEY"] = "REDACTED"; 
 ENV["BINANCE_SECRET"] = "REDACTED";
 
@@ -42,7 +42,9 @@ end
 
 dfKlines = getBinanceKlineDataframe("ETHBTC");
 
-plot(dfKlines[:close])
+plot(dfKlines[:close];label="ETHBTC interval = '1m'")
+
+![plot](./image/plot.png)
 
 
 
