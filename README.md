@@ -16,7 +16,8 @@ for package in packages
     end
 end
 
-ENV["BINANCE_APIKEY"] = "REDACTED";
+# fill in correct values when using private binancecalls e.g. getBalances()
+ENV["BINANCE_APIKEY"] = "REDACTED"; 
 ENV["BINANCE_SECRET"] = "REDACTED";
 
 using Binance,Dates, DataFrames, Plots
