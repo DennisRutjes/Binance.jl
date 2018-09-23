@@ -113,7 +113,7 @@ function account(apiKey, apiSecret)
     status = r.status
     if status != 200
         println(r)
-        return {"error", status}
+        return status
     end
 
     return r2j(r.body)
