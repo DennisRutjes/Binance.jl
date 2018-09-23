@@ -105,7 +105,7 @@ end
 
 ##################### SECURED CALL's NEEDS apiKey / apiSecret #####################
 
-function account(apiKey::String, apiSecret::String)
+function account(apiKey, apiSecret)
     headers = Dict("X-MBX-APIKEY" => apiKey)
 
     query = string("recvWindow=5000&timestamp=", timestamp()) 
