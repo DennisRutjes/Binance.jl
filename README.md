@@ -18,10 +18,6 @@ for package in packages
     end
 end
 
-# fill in correct values when using private binance calls e.g. Binance.getBalances()
-ENV["BINANCE_APIKEY"] = "REDACTED"; 
-ENV["BINANCE_SECRET"] = "REDACTED";
-
 using Binance,Dates, DataFrames, Plots
 
 hr24 = Binance.get24HR()
