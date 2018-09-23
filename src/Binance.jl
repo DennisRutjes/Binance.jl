@@ -8,7 +8,7 @@ BINANCE_API_TICKER = string(BINANCE_API_REST, "api/v1/ticker/")
 BINANCE_API_KLINES = string(BINANCE_API_REST, "api/v1/klines")
 
 BINANCE_API_WS = "wss://stream.binance.com:9443/ws/"
-BINANCE_API_STREAM = "wss://stream.binance.com:9443/stream/"
+#BINANCE_API_STREAM = "wss://stream.binance.com:9443/stream/"
 
 function apiKS()
     apiKey = get(ENV, "BINANCE_APIKEY", "")
@@ -54,10 +54,20 @@ function r2j(response)
 end
 
 ##################### PUBLIC CALL's #####################
-# Simpe test if binance API is online
+
+# Simple test if binance API is online
 function ping()
-    r = HTTP.request("GET", string(API_REST, "api/v1/ping"))
+    r = HTTP.request("GET", string(BINANCE_API_REST, "api/v1/ping"))
     r.status
+end
+
+# Binance servertime
+function serverTime()
+    r = HTTP.request("GET", string(BINANCE_API_REST, "api/v1/time"))
+    r.status
+    result = r2j(r.body)
+
+    Dates.unix2datetime(result["serverTime"] / 1000)
 end
 
 function get24HR()
@@ -106,8 +116,9 @@ end
 ##################### SECURED CALL's NEEDS apiKey / apiSecret #####################
 
 # account call contains balances
-function account(apiKey, apiSecret)
+function account(apiKey::String, apiSecret::String)
     headers = Dict("X-MBX-APIKEY" => apiKey)
+
     query = string("recvWindow=5000&timestamp=", timestamp())
 
     r = HTTP.request("GET", string(BINANCE_API_REST, "api/v3/account?", query, "&signature=", doSign(query, apiSecret)), headers)
@@ -121,10 +132,73 @@ function account(apiKey, apiSecret)
 end
 
 # returns default balances with amounts > 0
-function balances(apiKey, apiSecret; balanceFilter = x -> parse(Float64, x["free"]) > 0.0 || parse(Float64, x["locked"]) > 0.0)
+function balances(apiKey::String, apiSecret::String; balanceFilter = x -> parse(Float64, x["free"]) > 0.0 || parse(Float64, x["locked"]) > 0.0)
     acc = account(apiKey,apiSecret)
     balances = filter(balanceFilter, acc["balances"])
 end
+
+
+# Websockets functions
+
+function wsFunction(channel::Channel, ws::String, symbol::String)
+    HTTP.WebSockets.open(string(BINANCE_API_WS, lowercase(symbol), ws); verbose=false) do io
+      while !eof(io);
+        put!(channel, r2j(readavailable(io)))
+    end
+  end
+end
+
+function wsTradeAgg(channel::Channel, symbol::String)
+    wsFunction(channel, "@aggTrade", symbol)
+end
+
+function wsTradeRaw(channel::Channel, symbol::String)
+    wsFunction(channel, "@trade", symbol)
+end
+
+function wsDepth(channel::Channel, symbol::String; level=5)
+    wsFunction(channel, string("@depth", level), symbol)
+end
+
+function wsDepthDiff(channel::Channel, symbol::String)
+    wsFunction(channel, "@depth", symbol)
+end
+
+function wsTicker(channel::Channel, symbol::String)
+    wsFunction(channel, "@ticker", symbol)
+end
+
+function wsTicker24Hr(channel::Channel)
+    HTTP.WebSockets.open(string(BINANCE_API_WS, "!ticker@arr"); verbose=false) do io
+      while !eof(io);
+        put!(channel, r2j(readavailable(io)))
+    end
+  end
+end
+
+function wsKline(channel::Channel, symbol::String; interval="1m")
+  #interval => 1m 3m 5m 15m 30m 1h 2h 4h 6h 8h 12h 1d 3d 1w 1M
+    wsFunction(channel, string("@kline_", interval), symbol)
+end
+
+function wsKlineStreams(channel::Channel, symbols::Array, interval="1m")
+  #interval => 1m 3m 5m 15m 30m 1h 2h 4h 6h 8h 12h 1d 3d 1w 1M
+    allStreams = map(s -> string(lowercase(s), "@kline_", interval), symbols)
+    error = false;
+    while !error
+        try
+            #HTTP.WebSockets.open(string(API_WS,join(allStreams, "/")); verbose = true) do io
+            HTTP.WebSockets.open(string(BINANCE_API_WS,join(allStreams, "/")); verbose=false) do io
+            while !eof(io);
+                put!(channel, r2j(readavailable(io)))
+            end
+      end
+        catch
+            println("error occured retrying!")
+        end
+    end
+end
+
 
 # helper
 filterOnRegex(matcher, withDictArr; withKey="symbol") = filter(x -> match(Regex(matcher), x[withKey]) != nothing, withDictArr);

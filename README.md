@@ -49,3 +49,23 @@ plot(dfKlines[:close];label="ETHBTC interval = '1m'")
 ```
 
 ![plot]( https://github.com/DennisRutjes/Binance.jl/blob/master/images/plot.png )
+
+
+## Websockets streaming klines
+
+```julia
+tickersChannel = Channel(5)
+symbolsBTC=["BNBBTC","SNTBTC","DNTBTC","TRXBTC","FUNBTC","XVGBTC"]
+
+@async Binance.wsKlineStreams(tickersChannel, symbolsBTC)
+
+counter = 0
+@sync while counter < 10
+    global counter
+    kline = take!(tickersChannel)
+    if kline["E"] > kline["k"]["T"]
+        counter = counter + 1
+        println(string("counter : ", counter," kline => ", kline["k"]))
+    end
+end
+```
