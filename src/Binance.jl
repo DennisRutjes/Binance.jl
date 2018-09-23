@@ -11,11 +11,11 @@ BINANCE_API_WS = "wss://stream.binance.com:9443/ws/"
 BINANCE_API_STREAM = "wss://stream.binance.com:9443/stream/"
 
 function apiKS()
-    apiKey = get(ENV, "BINANCE_APIKEY", "") 
+    apiKey = get(ENV, "BINANCE_APIKEY", "")
     apiSecret = get(ENV, "BINANCE_SECRET", "")
-    
+
     @assert apiKey != "" || apiSecret != "" "BINANCE_APIKEY/BINANCE_APISECRET should be present in the environment dictionary ENV"
-    
+
     apiKey, apiSecret
 end
 
@@ -62,22 +62,22 @@ end
 
 function get24HR()
     r = HTTP.request("GET", string(BINANCE_API_TICKER, "24hr"))
-    r2j(r.body)    
+    r2j(r.body)
 end
 
 function get24HR(symbol::String)
     r = HTTP.request("GET", string(BINANCE_API_TICKER, "24hr?symbol=", symbol))
-    r2j(r.body)    
+    r2j(r.body)
 end
 
 function getAllPrices()
     r = HTTP.request("GET", string(BINANCE_API_TICKER, "allPrices"))
-    r2j(r.body)    
+    r2j(r.body)
 end
 
 function getAllBookTickers()
     r = HTTP.request("GET", string(BINANCE_API_TICKER, "allBookTickers"))
-    r2j(r.body)    
+    r2j(r.body)
 end
 
 function getMarket()
@@ -93,7 +93,7 @@ end
 # binance get candlesticks/klines data
 function getKlines(symbol; startDateTime=nothing, endDateTime=nothing, interval="1m")
     query = string("?symbol=", symbol, "&interval=", interval)
-    
+
     if startDateTime != nothing && endDateTime != nothing
         startTime = @sprintf("%.0d",Dates.datetime2unix(startDateTime) * 1000)
         endTime = @sprintf("%.0d",Dates.datetime2unix(endDateTime) * 1000)
@@ -105,13 +105,14 @@ end
 
 ##################### SECURED CALL's NEEDS apiKey / apiSecret #####################
 
+# account call contains balances
 function account(apiKey, apiSecret)
     headers = Dict("X-MBX-APIKEY" => apiKey)
+    query = string("recvWindow=5000&timestamp=", timestamp())
 
-    query = string("recvWindow=5000&timestamp=", timestamp()) 
     r = HTTP.request("GET", string(BINANCE_API_REST, "api/v3/account?", query, "&signature=", doSign(query, apiSecret)), headers)
-    status = r.status
-    if status != 200
+
+    if r.status != 200
         println(r)
         return status
     end
@@ -119,14 +120,11 @@ function account(apiKey, apiSecret)
     return r2j(r.body)
 end
 
+# returns default balances with amounts > 0
 function balances(apiKey, apiSecret; balanceFilter = x -> parse(Float64, x["free"]) > 0.0 || parse(Float64, x["locked"]) > 0.0)
-    account = account(apiKey,apiSecret)
-    if typeof(account) == Int64
-        return account
-    end
-    balances = filter(balanceFilter, account()["balances"])
+    acc = account(apiKey,apiSecret)
+    balances = filter(balanceFilter, acc["balances"])
 end
-
 
 # helper
 filterOnRegex(matcher, withDictArr; withKey="symbol") = filter(x -> match(Regex(matcher), x[withKey]) != nothing, withDictArr);
