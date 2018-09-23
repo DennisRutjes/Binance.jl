@@ -119,6 +119,11 @@ function account(apiKey, apiSecret)
     return r2j(r.body)
 end
 
+function balances(apiKey, apiSecret; balanceFilter = x -> parse(Float64, x["free"]) > 0.0 || parse(Float64, x["locked"]) > 0.0)
+    account = account(apiKey,apiSecret)
+    balances = filter(balanceFilter, account()["balances"])
+end
+
 
 # helper
 filterOnRegex(matcher, withDictArr; withKey="symbol") = filter(x -> match(Regex(matcher), x[withKey]) != nothing, withDictArr);
