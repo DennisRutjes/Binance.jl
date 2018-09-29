@@ -1,6 +1,6 @@
 module Binance
 
-import HTTP, SHA, JSON, Dates
+import HTTP, SHA, JSON, Dates, Printf.@sprintf
 
 # base URL of the Binance API
 BINANCE_API_REST = "https://api.binance.com/"
@@ -209,7 +209,7 @@ function pingUserData(apiKey, listenKey)
     if length(listenKey) == 0
         return false
     end
-    
+
     headers = Dict("X-MBX-APIKEY" => apiKey)
     body = string("listenKey=", listenKey) 
     r = HTTP.request("PUT", BINANCE_API_USER_DATA_STREAM, headers, body)
