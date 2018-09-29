@@ -227,7 +227,6 @@ function closeUserData(apiKey, listenKey)
 end
 
 function wsUserData(channel::Channel, listenKey)
-   
     error = false;
     while !error
         try
@@ -236,7 +235,7 @@ function wsUserData(channel::Channel, listenKey)
                     put!(channel, r2j(readavailable(io)))
                 end
             end
-            catch x
+        catch x
             println(x)
             error = true;
         end
