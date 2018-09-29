@@ -228,15 +228,20 @@ end
 
 function wsUserData(channel::Channel, listenKey)
    
-    println(now(), "Starting wsUserData ...")
-    HTTP.WebSockets.open(string(BINANCE_API_WS, listenKey); verbose=false) do io
-        while !eof(io);
-            put!(channel, r2j(readavailable(io)))
+    error = false;
+    while !error
+        try
+            HTTP.WebSockets.open(string(Binance.BINANCE_API_WS, listenKey); verbose=true) do io
+                while !eof(io);
+                    put!(channel, r2j(readavailable(io)))
+                end
+            end
+            catch x
+            println(x)
+            error = true;
         end
     end
-   
 end
-
 # helper
 filterOnRegex(matcher, withDictArr; withKey="symbol") = filter(x -> match(Regex(matcher), x[withKey]) != nothing, withDictArr);
 
