@@ -213,7 +213,7 @@ function pingUserData(apiKey, listenKey)
     headers = Dict("X-MBX-APIKEY" => apiKey)
     body = string("listenKey=", listenKey) 
     r = HTTP.request("PUT", BINANCE_API_USER_DATA_STREAM, headers, body)
-    return true
+    r2j(r.body)
 end
 
 function closeUserData(apiKey, listenKey)
