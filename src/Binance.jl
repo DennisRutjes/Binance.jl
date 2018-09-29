@@ -1,11 +1,13 @@
 module Binance
 
-import HTTP, SHA, JSON, Dates, Printf.@sprintf
+import HTTP, SHA, JSON, Dates
 
 # base URL of the Binance API
 BINANCE_API_REST = "https://api.binance.com/"
 BINANCE_API_TICKER = string(BINANCE_API_REST, "api/v1/ticker/")
 BINANCE_API_KLINES = string(BINANCE_API_REST, "api/v1/klines")
+BINANCE_API_USER_DATA_STREAM = string(BINANCE_API_REST, "api/v1/userDataStream")
+
 
 BINANCE_API_WS = "wss://stream.binance.com:9443/ws/"
 #BINANCE_API_STREAM = "wss://stream.binance.com:9443/stream/"
@@ -18,7 +20,6 @@ function apiKS()
 
     apiKey, apiSecret
 end
-
 
 # signing with apiKey and apiSecret
 function timestamp()
@@ -187,7 +188,6 @@ function wsKlineStreams(channel::Channel, symbols::Array, interval="1m")
     error = false;
     while !error
         try
-            #HTTP.WebSockets.open(string(API_WS,join(allStreams, "/")); verbose = true) do io
             HTTP.WebSockets.open(string(BINANCE_API_WS,join(allStreams, "/")); verbose=false) do io
             while !eof(io);
                 put!(channel, r2j(readavailable(io)))
@@ -199,6 +199,46 @@ function wsKlineStreams(channel::Channel, symbols::Array, interval="1m")
     end
 end
 
+function openUserData(apiKey)
+    headers = Dict("X-MBX-APIKEY" => apiKey)
+    r = HTTP.request("POST", BINANCE_API_USER_DATA_STREAM, headers)
+    return r2j(r.body)["listenKey"]
+end
+
+function pingUserData(apiKey, listenKey)
+    if length(listenKey) == 0
+        return false
+    end
+    
+    headers = Dict("X-MBX-APIKEY" => apiKey)
+    body = string("listenKey=", listenKey) 
+    r = HTTP.request("PUT", BINANCE_API_USER_DATA_STREAM, headers, body)
+    return true
+end
+
+function closeUserData(apiKey, listenKey)
+    if length(listenKey) == 0
+        return false
+    end
+    headers = Dict("X-MBX-APIKEY" => apiKey)
+    body = string("listenKey=", listenKey) 
+    r = HTTP.request("DELETE", BINANCE_API_USER_DATA_STREAM, headers, body)
+   return true
+end
+
+function wsUserData(channel::Channel, listenKey)
+    try
+        println(now(), "Starting wsUserData ...")
+        HTTP.WebSockets.open(string(BINANCE_API_WS, listenKey); verbose=true) do io
+        while !eof(io);
+            put!(channel, r2j(readavailable(io)))
+        end
+    end
+    catch x
+        println(now(), "Error closing channel", x)
+        close(channel)
+    end        
+end
 
 # helper
 filterOnRegex(matcher, withDictArr; withKey="symbol") = filter(x -> match(Regex(matcher), x[withKey]) != nothing, withDictArr);
