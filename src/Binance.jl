@@ -227,17 +227,14 @@ function closeUserData(apiKey, listenKey)
 end
 
 function wsUserData(channel::Channel, listenKey)
-    try
-        println(now(), "Starting wsUserData ...")
-        HTTP.WebSockets.open(string(BINANCE_API_WS, listenKey); verbose=true) do io
+   
+    println(now(), "Starting wsUserData ...")
+    HTTP.WebSockets.open(string(BINANCE_API_WS, listenKey); verbose=false) do io
         while !eof(io);
             put!(channel, r2j(readavailable(io)))
         end
     end
-    catch x
-        println(now(), "Error closing channel", x)
-        close(channel)
-    end        
+   
 end
 
 # helper
