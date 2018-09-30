@@ -205,7 +205,7 @@ function openUserData(apiKey)
     return r2j(r.body)["listenKey"]
 end
 
-function pingUserData(apiKey, listenKey)
+function keepAlive(apiKey, listenKey)
     if length(listenKey) == 0
         return false
     end
@@ -226,21 +226,34 @@ function closeUserData(apiKey, listenKey)
    return true
 end
 
-function wsUserData(channel::Channel, listenKey)
+function wsUserData(channel::Channel, apiKey, listenKey; reconnect=true)
+
+    function keepAlive()
+        keepAlive(apiKey, listenKey)
+    end    
+
+    Timer(keepAlive, 1800; interval = 1800)
+
     error = false;
     while !error
         try
-            HTTP.WebSockets.open(string(Binance.BINANCE_API_WS, listenKey); verbose=true) do io
+            HTTP.WebSockets.open(string(Binance.BINANCE_API_WS, listenKey); verbose=false) do io
                 while !eof(io);
                     put!(channel, r2j(readavailable(io)))
                 end
             end
         catch x
             println(x)
-            error = true;
+            error = true; 
         end
     end
+
+    if reconnect
+        wsUserData(channel, apikey, openUserData(apiKey))
+    end
+
 end
+
 # helper
 filterOnRegex(matcher, withDictArr; withKey="symbol") = filter(x -> match(Regex(matcher), x[withKey]) != nothing, withDictArr);
 
