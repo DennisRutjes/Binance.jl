@@ -6,6 +6,7 @@ import HTTP, SHA, JSON, Dates, Printf.@sprintf
 BINANCE_API_REST = "https://api.binance.com/"
 BINANCE_API_TICKER = string(BINANCE_API_REST, "api/v1/ticker/")
 BINANCE_API_KLINES = string(BINANCE_API_REST, "api/v1/klines")
+BINANCE_API_ORDER = string(BINANCE_API_REST, "api/v3/order")
 BINANCE_API_USER_DATA_STREAM = string(BINANCE_API_REST, "api/v1/userDataStream")
 
 
@@ -115,6 +116,64 @@ function getKlines(symbol; startDateTime=nothing, endDateTime=nothing, interval=
 end
 
 ##################### SECURED CALL's NEEDS apiKey / apiSecret #####################
+function createOrder(symbol::String, orderSide::String; 
+    quantity::Float64=0.0, orderType="LIMIT", 
+    price::Float64=0.0, stopPrice::Float64=0.0, 
+    icebergQty::Float64=0.0, newClientOrderId::String="")
+      
+      if quantity <= 0.0
+          error("Quantity cannot be <=0 for order type.")
+      end
+  
+      println("$orderSide => $symbol q: $quantity, p: $price ")
+      
+      order = Dict("symbol"           => symbol, 
+                      "side"             => orderSide,
+                      "type"             => orderType,
+                      "quantity"         => @sprintf("%.8f", quantity),
+                      "newOrderRespType" => "FULL",
+                      "recvWindow"       => 10000)
+  
+      if newClientOrderId != ""
+          order["newClientOrderId"] = newClientOrderId;
+      end
+  
+      if orderType == "LIMIT" || orderType == "LIMIT_MAKER"
+          if price <= 0.0
+              error("Price cannot be <= 0 for order type.")
+          end
+          order["price"] =  @sprintf("%.8f", price)
+      end
+  
+      if orderType == "STOP_LOSS" || orderType == "TAKE_PROFIT"
+          if stopPrice <= 0.0
+              error("StopPrice cannot be <= 0 for order type.")
+          end
+          order["stopPrice"] = @sprintf("%.8f", stopPrice)
+      end
+  
+      if orderType == "STOP_LOSS_LIMIT" || orderType == "TAKE_PROFIT_LIMIT"
+          if price <= 0.0 || stopPrice <= 0.0
+              error("Price / StopPrice cannot be <= 0 for order type.")
+          end
+          order["price"] =  @sprintf("%.8f", price)
+          order["stopPrice"] =  @sprintf("%.8f", stopPrice)
+      end
+  
+      if orderType == "TAKE_PROFIT"
+          if price <= 0.0 || stopPrice <= 0.0
+              error("Price / StopPrice cannot be <= 0 for STOP_LOSS_LIMIT order type.")
+          end
+          order["price"] =  @sprintf("%.8f", price)
+          order["stopPrice"] =  @sprintf("%.8f", stopPrice)
+      end 
+  
+      if orderType == "LIMIT"  || orderType == "STOP_LOSS_LIMIT" || orderType == "TAKE_PROFIT_LIMIT"
+          order["timeInForce"] = toString(TimeInForce.GTC)
+      end
+  
+      order
+  end
 
 # account call contains balances
 function account(apiKey::String, apiSecret::String)
@@ -129,6 +188,19 @@ function account(apiKey::String, apiSecret::String)
         return status
     end
 
+    return r2j(r.body)
+end
+
+function executeOrder(order::Dict, apiSecret; execute=false)
+    headers = Dict("X-MBX-APIKEY" => apiKey)
+    query = string("recvWindow=5000&timestamp=", timestamp())
+
+    r = HTTP.request("GET", string(BINANCE_API_ORDER, "?", query, "&signature=", doSign(query, apiSecret)), headers)
+
+    if r.status != 200
+        println(r)
+        return status
+    end
     return r2j(r.body)
 end
 
