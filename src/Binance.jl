@@ -169,7 +169,7 @@ function createOrder(symbol::String, orderSide::String;
       end 
   
       if orderType == "LIMIT"  || orderType == "STOP_LOSS_LIMIT" || orderType == "TAKE_PROFIT_LIMIT"
-          order["timeInForce"] = toString(TimeInForce.GTC)
+          order["timeInForce"] = "GTC"
       end
   
       order
