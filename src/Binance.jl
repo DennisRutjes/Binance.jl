@@ -117,7 +117,7 @@ end
 
 ##################### SECURED CALL's NEEDS apiKey / apiSecret #####################
 function createOrder(symbol::String, orderSide::String; 
-    quantity::Float64=0.0 orderType="LIMIT", 
+    quantity::Float64=0.0 orderType::String = "LIMIT", 
     price::Float64=0.0, stopPrice::Float64=0.0, 
     icebergQty::Float64=0.0, newClientOrderId::String="")
       
