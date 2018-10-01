@@ -201,7 +201,7 @@ end
 
 function executeOrder(order::Dict, apiKey, apiSecret; execute=false)
     query = string(dict2Params(order), "&timestamp=", timestamp())
-    body = string(query, "&signature=", doSign(query))
+    body = string(query, "&signature=", doSign(query, apiSecret))
     println(body)
 
     uri = "api/v3/order/test"
