@@ -191,7 +191,7 @@ function account(apiKey::String, apiSecret::String)
     return r2j(r.body)
 end
 
-function executeOrder(order::Dict, apiSecret; execute=false)
+function executeOrder(order::Dict,apiKey, apiSecret; execute=false)
     headers = Dict("X-MBX-APIKEY" => apiKey)
     query = string("recvWindow=5000&timestamp=", timestamp())
 
