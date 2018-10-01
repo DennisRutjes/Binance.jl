@@ -200,6 +200,7 @@ function account(apiKey::String, apiSecret::String)
 end
 
 function executeOrder(order::Dict, apiKey, apiSecret; execute=false)
+    headers = Dict("X-MBX-APIKEY" => apiKey)
     query = string(dict2Params(order), "&timestamp=", timestamp())
     body = string(query, "&signature=", doSign(query, apiSecret))
     println(body)
