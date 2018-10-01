@@ -22,6 +22,14 @@ function apiKS()
     apiKey, apiSecret
 end
 
+function dict2Params(dict::Dict)
+    params = ""
+    for kv in dict
+        params = string(params, "&$(kv[1])=$(kv[2])")
+    end
+    params[1:end]
+end
+
 # signing with apiKey and apiSecret
 function timestamp()
     Int64(floor(Dates.datetime2unix(Dates.now(Dates.UTC)) * 1000))
@@ -191,16 +199,12 @@ function account(apiKey::String, apiSecret::String)
     return r2j(r.body)
 end
 
-function executeOrder(order::Dict,apiKey, apiSecret; execute=false)
+function executeOrder(order::Dict, apiKey, apiSecret; execute=false)
     headers = Dict("X-MBX-APIKEY" => apiKey)
-    query = string("recvWindow=5000&timestamp=", timestamp())
+    query = string("recvWindow=10000&timestamp=", timestamp(), dict2Params(order)))
 
     r = HTTP.request("GET", string(BINANCE_API_ORDER, "?", query, "&signature=", doSign(query, apiSecret)), headers)
 
-    if r.status != 200
-        println(r)
-        return status
-    end
     return r2j(r.body)
 end
 
