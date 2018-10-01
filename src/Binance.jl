@@ -200,12 +200,17 @@ function account(apiKey::String, apiSecret::String)
 end
 
 function executeOrder(order::Dict, apiKey, apiSecret; execute=false)
-    headers = Dict("X-MBX-APIKEY" => apiKey)
-    query = string("timestamp=", timestamp(), dict2Params(order))
+    query = string("&timestamp=", timestamp(), dict2Params(order))
+    body = string(query, "&signature=", doSign(query))
+    println(body)
 
-    r = HTTP.request("GET", string(BINANCE_API_ORDER, "?", query, "&signature=", doSign(query, apiSecret)), headers)
+    uri = "api/v3/order/test"
+    if execute
+        uri = "api/v3/order"
+    end
 
-    return r2j(r.body)
+    r = HTTP.request("POST", string(BINANCE_API_ORDER, uri), headers, body)
+    r2j(r.body)
 end
 
 # returns default balances with amounts > 0
