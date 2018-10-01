@@ -201,7 +201,7 @@ end
 
 function executeOrder(order::Dict, apiKey, apiSecret; execute=false)
     headers = Dict("X-MBX-APIKEY" => apiKey)
-    query = string("recvWindow=10000&timestamp=", timestamp(), dict2Params(order)))
+    query = string("recvWindow=10000&timestamp=", timestamp(), dict2Params(order))
 
     r = HTTP.request("GET", string(BINANCE_API_ORDER, "?", query, "&signature=", doSign(query, apiSecret)), headers)
 
