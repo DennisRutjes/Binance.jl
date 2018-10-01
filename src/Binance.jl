@@ -27,7 +27,7 @@ function dict2Params(dict::Dict)
     for kv in dict
         params = string(params, "&$(kv[1])=$(kv[2])")
     end
-    params[1:end]
+    params[2:end]
 end
 
 # signing with apiKey and apiSecret
