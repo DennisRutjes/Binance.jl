@@ -6,7 +6,6 @@ import HTTP, SHA, JSON, Dates, Printf.@sprintf
 BINANCE_API_REST = "https://api.binance.com/"
 BINANCE_API_TICKER = string(BINANCE_API_REST, "api/v1/ticker/")
 BINANCE_API_KLINES = string(BINANCE_API_REST, "api/v1/klines")
-BINANCE_API_ORDER = string(BINANCE_API_REST, "api/v3/order")
 BINANCE_API_USER_DATA_STREAM = string(BINANCE_API_REST, "api/v1/userDataStream")
 
 
@@ -210,7 +209,7 @@ function executeOrder(order::Dict, apiKey, apiSecret; execute=false)
         uri = "api/v3/order"
     end
 
-    r = HTTP.request("POST", string(BINANCE_API_ORDER, uri), headers, body)
+    r = HTTP.request("POST", string(BINANCE_API_REST, uri), headers, body)
     r2j(r.body)
 end
 
