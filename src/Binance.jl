@@ -200,7 +200,7 @@ function account(apiKey::String, apiSecret::String)
 end
 
 function executeOrder(order::Dict, apiKey, apiSecret; execute=false)
-    query = string("&timestamp=", timestamp(), dict2Params(order))
+    query = string(dict2Params(order), "&timestamp=", timestamp())
     body = string(query, "&signature=", doSign(query))
     println(body)
 
