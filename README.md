@@ -1,4 +1,4 @@
-# Binance.jl
+# Binance.jl a pure Julia implementation
 [Binance](https://www.binance.com/en?ref=35360148) (referral link) API with [Julialang](https://julialang.org/)
 
 Work In Progress!
