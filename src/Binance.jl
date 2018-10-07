@@ -275,7 +275,8 @@ function wsKlineStreams(channel::Channel, symbols::Array, interval="1m")
             end
       end
         catch
-            println("error occured retrying!")
+            error=true;
+            println("error occured bailing wsklinestreams !")
         end
     end
 end
