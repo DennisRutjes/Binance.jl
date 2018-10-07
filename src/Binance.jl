@@ -286,20 +286,13 @@ function wsKlineStreams(callback::Function, symbols::Array, interval="1m")
     #interval => 1m 3m 5m 15m 30m 1h 2h 4h 6h 8h 12h 1d 3d 1w 1M
       allStreams = map(s -> string(lowercase(s), "@kline_", interval), symbols)
       error = false;
-      while !error
-          try
-              HTTP.WebSockets.open(string(BINANCE_API_WS,join(allStreams, "/")); verbose=true) do io
-              while !eof(io);
-                wsData = String(readavailable(io))
-                callback(wsData)
-              end
+      HTTP.WebSockets.open(string(BINANCE_API_WS,join(allStreams, "/")); verbose=false) do io
+        while !eof(io);
+            data = String(readavailable(io))
+            callback(data)
         end
-          catch e
-              println(e)
-              error=true;
-              println("error occured bailing wsklinestreams !")
-          end
-      end
+    end
+     
   end
 
 
