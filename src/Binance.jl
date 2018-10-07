@@ -271,7 +271,7 @@ function wsKlineStreams(channel::Channel, symbols::Array, interval="1m")
         try
             HTTP.WebSockets.open(string(BINANCE_API_WS,join(allStreams, "/")); verbose=false) do io
             while !eof(io);
-                put!(channel, r2j(readavailable(io)))
+                put!(channel, String(readavailable(io)))
             end
       end
         catch e
