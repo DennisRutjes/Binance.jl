@@ -290,7 +290,8 @@ function wsKlineStreams(callback::Function, symbols::Array, interval="1m")
           try
               HTTP.WebSockets.open(string(BINANCE_API_WS,join(allStreams, "/")); verbose=false) do io
               while !eof(io);
-                  callback(String(readavailable(io)))
+                wsData = String(readavailable(io))
+                @async callback(wsData)
               end
         end
           catch e
