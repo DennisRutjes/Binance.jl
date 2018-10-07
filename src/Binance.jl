@@ -274,7 +274,8 @@ function wsKlineStreams(channel::Channel, symbols::Array, interval="1m")
                 put!(channel, r2j(readavailable(io)))
             end
       end
-        catch
+        catch e
+            println(e)
             error=true;
             println("error occured bailing wsklinestreams !")
         end
