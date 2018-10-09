@@ -285,12 +285,13 @@ end
 function wsKlineStreams(callback::Function, symbols::Array; interval="1m")
     #interval => 1m 3m 5m 15m 30m 1h 2h 4h 6h 8h 12h 1d 3d 1w 1M
       allStreams = map(s -> string(lowercase(s), "@kline_", interval), symbols)
-      error = false;
-      return HTTP.WebSockets.open(string("wss://stream.binance.com:9443/ws/",join(allStreams, "/")); verbose=false) do io
-      while !eof(io)
-            data = String(readavailable(io))
-            callback(data)
-       end
+      @async begin
+        HTTP.WebSockets.open(string("wss://stream.binance.com:9443/ws/",join(allStreams, "/")); verbose=false) do io
+            while !eof(io)
+                    data = String(readavailable(io))
+                    callback(data)
+            end
+        end
     end
 end
 
