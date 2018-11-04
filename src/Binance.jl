@@ -381,7 +381,7 @@ function coinmarketcap(;quantity=-1)
     return df
 end
 
-
+#https://gist.github.com/abel30567/060c861a8e8db6f1ab6f88febbb78c8c
 function hodlN(N;cap=0.1)
     market = coinmarketcap(quantity=N)
 
