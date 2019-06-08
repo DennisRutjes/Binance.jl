@@ -5,6 +5,8 @@ import HTTP, SHA, JSON, Dates, Printf.@sprintf
 # base URL of the Binance API
 BINANCE_API_REST = "https://api.binance.com/"
 BINANCE_API_TICKER = string(BINANCE_API_REST, "api/v1/ticker/")
+BINANCE_API_DEPTH = string(BINANCE_API_REST, "api/v1/depth/")
+
 BINANCE_API_KLINES = string(BINANCE_API_REST, "api/v1/klines")
 BINANCE_API_USER_DATA_STREAM = string(BINANCE_API_REST, "api/v1/userDataStream")
 
@@ -81,6 +83,11 @@ end
 
 function get24HR()
     r = HTTP.request("GET", string(BINANCE_API_TICKER, "24hr"))
+    r2j(r.body)
+end
+
+function getDepth(symbol::String; limit=100) // 500(5), 1000(10)
+    r = HTTP.request("GET", string(BINANCE_API_DEPTH, "24hr?symbol=", symbol,"&limit=",limit))
     r2j(r.body)
 end
 
