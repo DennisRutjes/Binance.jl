@@ -86,7 +86,7 @@ function get24HR()
     r2j(r.body)
 end
 
-function getDepth(symbol::String; limit=100) // 500(5), 1000(10)
+function getDepth(symbol::String; limit=100) # 500(5), 1000(10)
     r = HTTP.request("GET", string(BINANCE_API_DEPTH, "24hr?symbol=", symbol,"&limit=",limit))
     r2j(r.body)
 end
