@@ -1,4 +1,5 @@
 module Binance
+using Pkg
 
 packages=[] #["HTTP", "JSON","Dates","DataFrames","CSV","SHA","Printf"];
 for package in packages
@@ -8,7 +9,8 @@ for package in packages
     end
 end
 
-using HTTP, SHA, JSON, Dates, Printf.@sprintf, DataFrames
+using HTTP, SHA, JSON, Dates, Printf, DataFrames
+
 
 # base URL of the Binance API
 BINANCE_API_REST = "https://api.binance.com/"
@@ -129,8 +131,8 @@ function getKlines(symbol; startDateTime=nothing, endDateTime=nothing, interval=
     query = string("?symbol=", symbol, "&interval=", interval)
 
     if startDateTime != nothing && endDateTime != nothing
-        startTime = @sprintf("%.0d",Dates.datetime2unix(startDateTime) * 1000)
-        endTime = @sprintf("%.0d",Dates.datetime2unix(endDateTime) * 1000)
+        startTime = Printf.@sprintf("%.0d",Dates.datetime2unix(startDateTime) * 1000)
+        endTime = Printf.@sprintf("%.0d",Dates.datetime2unix(endDateTime) * 1000)
         query = string(query, "&startTime=", startTime, "&endTime=", endTime)
     end
     r = HTTP.request("GET", string(BINANCE_API_KLINES, query))
@@ -152,7 +154,7 @@ function createOrder(symbol::String, orderSide::String;
       order = Dict("symbol"           => symbol, 
                       "side"             => orderSide,
                       "type"             => orderType,
-                      "quantity"         => @sprintf("%.8f", quantity),
+                      "quantity"         => Printf.@sprintf("%.8f", quantity),
                       "newOrderRespType" => "FULL",
                       "recvWindow"       => 10000)
   
@@ -164,30 +166,30 @@ function createOrder(symbol::String, orderSide::String;
           if price <= 0.0
               error("Price cannot be <= 0 for order type.")
           end
-          order["price"] =  @sprintf("%.8f", price)
+          order["price"] =  Printf.@sprintf("%.8f", price)
       end
   
       if orderType == "STOP_LOSS" || orderType == "TAKE_PROFIT"
           if stopPrice <= 0.0
               error("StopPrice cannot be <= 0 for order type.")
           end
-          order["stopPrice"] = @sprintf("%.8f", stopPrice)
+          order["stopPrice"] = Printf.@sprintf("%.8f", stopPrice)
       end
   
       if orderType == "STOP_LOSS_LIMIT" || orderType == "TAKE_PROFIT_LIMIT"
           if price <= 0.0 || stopPrice <= 0.0
               error("Price / StopPrice cannot be <= 0 for order type.")
           end
-          order["price"] =  @sprintf("%.8f", price)
-          order["stopPrice"] =  @sprintf("%.8f", stopPrice)
+          order["price"] =  Printf.@sprintf("%.8f", price)
+          order["stopPrice"] =  Printf.@sprintf("%.8f", stopPrice)
       end
   
       if orderType == "TAKE_PROFIT"
           if price <= 0.0 || stopPrice <= 0.0
               error("Price / StopPrice cannot be <= 0 for STOP_LOSS_LIMIT order type.")
           end
-          order["price"] =  @sprintf("%.8f", price)
-          order["stopPrice"] =  @sprintf("%.8f", stopPrice)
+          order["price"] =  Printf.@sprintf("%.8f", price)
+          order["stopPrice"] =  Printf.@sprintf("%.8f", stopPrice)
       end 
   
       if orderType == "LIMIT"  || orderType == "STOP_LOSS_LIMIT" || orderType == "TAKE_PROFIT_LIMIT"
