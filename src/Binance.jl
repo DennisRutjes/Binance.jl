@@ -8,7 +8,7 @@ for package in packages
     end
 end
 
-import HTTP, SHA, JSON, Dates, Printf.@sprintf, DataFrames
+using HTTP, SHA, JSON, Dates, Printf.@sprintf, DataFrames
 
 # base URL of the Binance API
 BINANCE_API_REST = "https://api.binance.com/"
