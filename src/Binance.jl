@@ -130,6 +130,18 @@ function getKlines(symbol; startDateTime=nothing, endDateTime=nothing, interval=
 end
 
 ##################### SECURED CALL's NEEDS apiKey / apiSecret #####################
+function openOrders()
+    query = string("recvWindow=5000&timestamp=", timestamp()) 
+    r = HTTP.request("GET", string(BINANCE_API_REST, "api/v3/openOrders?", query, "&signature=", doSign(query)), headers)
+    r2j(r.body)
+end
+
+function cancelOrder(symbol,origClientOrderId)
+    query = string("recvWindow=5000&timestamp=", timestamp(),"&symbol=", symbol,"&origClientOrderId=", origClientOrderId)
+    r = HTTP.request("DELETE", string(BINANCE_API_REST, "api/v3/order?", query, "&signature=", doSign(query)), headers)
+    r2j(r.body)
+end
+
 function createOrder(symbol::String, orderSide::String; 
     quantity::Float64=0.0, orderType::String = "LIMIT", 
     price::Float64=0.0, stopPrice::Float64=0.0, 
