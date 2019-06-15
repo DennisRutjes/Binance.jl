@@ -1,16 +1,6 @@
 module Binance
-using Pkg
 
-packages=[] #["HTTP", "JSON","Dates","DataFrames","CSV","SHA","Printf"];
-for package in packages
-    if get(Pkg.installed(),package,-1) == -1
-        println(" getting package : ", package);
-        Pkg.add(package);
-    end
-end
-
-using HTTP, SHA, JSON, Dates, Printf, DataFrames
-
+import HTTP, SHA, JSON, Dates, Printf, DataFrames
 
 # base URL of the Binance API
 BINANCE_API_REST = "https://api.binance.com/"
