@@ -1,8 +1,6 @@
 module Binance
 
-import HTTP, SHA, JSON, Dates, Printf, DataFrames
-
-import DataFrames.DataFrame
+import HTTP, SHA, JSON, Dates, Printf
 
 # base URL of the Binance API
 BINANCE_API_REST = "https://api.binance.com/"
@@ -378,55 +376,5 @@ end
 
 # helper
 filterOnRegex(matcher, withDictArr; withKey="symbol") = filter(x -> match(Regex(matcher), x[withKey]) != nothing, withDictArr);
-
-function coinmarketcap(;quantity=-1)
-    num = ["last_updated","price_usd","24h_volume_usd","market_cap_usd","rank","available_supply","total_supply","max_supply","percent_change_1h","percent_change_24h","percent_change_7d"]
-
-    query = ""
-    if quantity > 0
-        query="?limit=$quantity"
-    end
-
-    r = HTTP.request("GET", string("https://api.coinmarketcap.com/v1/ticker/",query))
-    market = r2j(r.body)
-    agg = nothing
-    columns = nothing
-    for m in market
-        result = map(z -> z.second == nothing ? missing : (z.first in num ? parse(Float64, z.second) : z.second), collect(m))
-        #r = DataFrame(map(z -> [z.second == nothing ? missing : (z.first in num ? parse(Float64, z.second) : z.second)], collect(m)), map(symbol -> Symbol(symbol), collect(keys(m))))
-        if agg == nothing
-            agg = hcat(result...)
-            columns= map(symbol -> Symbol(symbol), collect(keys(m)))
-        else
-            agg = vcat(agg, hcat(result...))
-        end
-    end
-
-    df = DataFrame(agg, columns);
-    df[:last_updated] = Dates.unix2datetime.(df[:last_updated])
-    return df
-end
-
-#https://gist.github.com/abel30567/060c861a8e8db6f1ab6f88febbb78c8c
-function hodlN(N;cap=0.1)
-    market = coinmarketcap(quantity=N)
-
-    assetSize = size(market,1)
-
-    market[:ratio] = market[:market_cap_usd] / sum(market[:market_cap_usd])
-
-    ratios = market[:ratio]
-
-    for i in range(1, assetSize-1)
-        if ratios[i]  > cap
-            overflow = ratios[i] - cap
-            ratios[i] = cap
-
-            total_nested_cap = sum(market[:market_cap_usd][i+1:end])
-            market[:ratio][i+1:end] += overflow * market[:market_cap_usd][i+1:end] / total_nested_cap
-        end
-    end
-    market
-end
 
 end
