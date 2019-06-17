@@ -1,6 +1,8 @@
 module Binance
 
-import HTTP, SHA, JSON, Dates, Printf, DataFrames
+using HTTP, SHA, JSON, Dates, Printf, DataFrames
+
+import DataFrames.DataFrame
 
 # base URL of the Binance API
 BINANCE_API_REST = "https://api.binance.com/"
