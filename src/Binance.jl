@@ -107,7 +107,7 @@ function getAllBookTickers()
 end
 
 function getExchangeInfo()
-    r = HTTP.request("GET", string(BINANCE_API_REST,"api/vi/exchangeInfo"))
+    r = HTTP.request("GET", "https://www.binance.com/api/v1/exchangeInfo")
     r2j(r.body)
 end
 
