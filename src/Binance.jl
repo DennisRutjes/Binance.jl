@@ -1,6 +1,6 @@
 module Binance
 
-using HTTP, SHA, JSON, Dates, Printf, DataFrames
+import HTTP, SHA, JSON, Dates, Printf, DataFrames
 
 import DataFrames.DataFrame
 
