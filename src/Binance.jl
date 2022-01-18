@@ -122,9 +122,9 @@ function getMarket(symbol::String)
 end
 
 # binance get candlesticks/klines data
-function getKlines(symbol; startDateTime=nothing, endDateTime=nothing, interval="1m")
-    query = string("?symbol=", symbol, "&interval=", interval)
-
+function getKlines(symbol; startDateTime=nothing, endDateTime=nothing, interval="1m", limit = 500)
+    query = string("?symbol=", symbol, "&interval=", interval, "&limit=", limit) # limit is Default 500; max 1500.
+    
     if startDateTime != nothing && endDateTime != nothing
         startTime = Printf.@sprintf("%.0d",Dates.datetime2unix(startDateTime) * 1000)
         endTime = Printf.@sprintf("%.0d",Dates.datetime2unix(endDateTime) * 1000)
