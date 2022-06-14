@@ -18,7 +18,7 @@ function apiKS()
     apiKey = get(ENV, "BINANCE_APIKEY", "")
     apiSecret = get(ENV, "BINANCE_SECRET", "")
 
-    @assert apiKey != "" || apiSecret != "" "BINANCE_APIKEY/BINANCE_APISECRET should be present in the environment dictionary ENV"
+    @assert apiKey != "" || apiSecret != "" "BINANCE_APIKEY/BINANCE_SECRET should be present in the environment dictionary ENV"
 
     apiKey, apiSecret
 end
